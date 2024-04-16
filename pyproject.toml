@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "aarushi-barcode-1"
+version = "0.1.0"
+description = "The project's objective is to develop a system that accepts product data such as SKU, UPC, EAN, etc., and generates barcode images in the specified formats which include EAN-13 and Code 128 due to their extensive usage in the retail and logistics sectors. Although the user initially inquired about customizing the size, color, and resolution of the barcodes, they stated no requirement for such customizations. Yet, information collected demonstrated the capability to customize barcodes using Python libraries, suggesting flexibility in the implementation if needed in the future."
+authors = ["AutoGPT <info@agpt.co>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+pillow = "*"
+fastapi = "*"
+prisma = "*"
+pydantic = "*"
+python-barcode = "*"
+uvicorn = "*"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

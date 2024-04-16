@@ -1,0 +1,111 @@
+// datasource db defines the database connection settings.
+// It is configured for PostgreSQL and uses an environment variable for the connection URL.
+// The 'extensions' feature enables the use of PostgreSQL-specific data types.
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+}
+
+// generator db configures Prisma Client settings.
+// It is set up to use Prisma Client Python with asyncio interface and specific features.
+generator db {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+  previewFeatures      = ["postgresqlExtensions"]
+}
+
+model User {
+  id           String         @id @default(dbgenerated("gen_random_uuid()"))
+  email        String         @unique
+  password     String
+  role         Role           @default(USER)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  barcodes     Barcode[]
+  Subscription Subscription[]
+  APIKey       APIKey[]
+}
+
+model Barcode {
+  id         String        @id @default(dbgenerated("gen_random_uuid()"))
+  sku        String?
+  upc        String?
+  ean        String?
+  format     BarcodeFormat
+  size       String?
+  color      String?
+  resolution Int?
+  userId     String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  image      String?
+
+  User User @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
+  sku         String?  @unique
+  upc         String?  @unique
+  ean         String?  @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Subscription {
+  id        String           @id @default(dbgenerated("gen_random_uuid()"))
+  userId    String
+  type      SubscriptionType
+  createdAt DateTime         @default(now())
+  validTill DateTime
+
+  User User @relation(fields: [userId], references: [id])
+}
+
+model APIKey {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  key       String   @unique
+  service   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  User        User          @relation(fields: [userId], references: [id])
+  Integration Integration[]
+}
+
+model Integration {
+  id          String          @id @default(dbgenerated("gen_random_uuid()"))
+  name        String
+  serviceType IntegrationType
+  apiKeyId    String
+  createdAt   DateTime        @default(now())
+
+  APIKey APIKey @relation(fields: [apiKeyId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  USER
+  OPERATOR
+}
+
+enum BarcodeFormat {
+  EAN_13
+  UPC_A
+  CODE_128
+}
+
+enum SubscriptionType {
+  BASIC
+  PREMIUM
+}
+
+enum IntegrationType {
+  INVENTORY
+  POS
+  LOGISTICS
+}
+
